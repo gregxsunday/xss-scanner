@@ -1,0 +1,4 @@
+flask
+pytest
+Flask-SQLAlchemy
+gunicorn

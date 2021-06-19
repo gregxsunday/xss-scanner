@@ -51,6 +51,7 @@ if __name__ == '__main__':
     try:
         for event in events:
             payload = f'<input {event}=alert(1)>'
+            # style=top:0;left:0;position:absolute;width:100%;height:100%
             alert = is_alert_present(driver, payload)
             print(payload, colored('VULNERABLE', 'red') if alert else colored('NOT VULNERABLE', 'green'))
     finally:

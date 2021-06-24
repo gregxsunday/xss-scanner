@@ -29,6 +29,17 @@ Zadaniem jest efektywne zidentyfikowanie, które event handlery nie są blokowan
 # Skaner XSS
 ## Instalacja
 1. Zainstaluj chromedriver podążając za instrukcjami dla Twojegu systemu ze strony https://chromedriver.chromium.org/getting-started
+   
+   Instalacja na systemie MacOS:
+   ```
+   brew install --cask chromedriver
+   ```
+   Instalacja na systemie Kali Linux (dzięki Przemek!)
+   ```
+   wget https://chromedriver.storage.googleapis.com/90.0.4430.24/chromedriver_linux64.zip
+   unzip chromedriver_linux64.zip
+   sudo cp chromedriver /usr/bin
+   ```
 2. wejdź do katalogu `scanner` i zainstaluj wymagane biblioteki
     ```
     cd scanner/
